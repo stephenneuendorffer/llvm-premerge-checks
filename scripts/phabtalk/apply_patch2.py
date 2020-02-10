@@ -134,14 +134,15 @@ class ApplyPatch:
 
     def _get_dependencies(self, diff_id) -> Tuple[int, List[int], str]:
         """Get all dependencies for the diff.
-        They are listed in reverse chronological order - from most recent to least recent."""
+        They are listed in reverse chronological order - from most recent to least recent.
+        Returns a tuple of (revision id, list of IDs of dependent revisions, base_revision)"""
 
         print('Getting dependencies of {}'.format(diff_id))
         diff = self._get_diff(diff_id)
         revision_id = int(diff.revisionID)
         revision = self._get_revision(revision_id)
         base_revision = diff['sourceControlBaseRevision']
-        if base_revision is None or len(base_revision) == 0:
+        if not self.valid_revision(base_revision):
             base_revision = 'master'
         dependency_ids = revision['auxiliary']['phabricator:depends-on']
         revisions = self._get_revisions(phids=dependency_ids)
@@ -152,7 +153,18 @@ class ApplyPatch:
             result.append(r['id'])
             result.extend(sub)
 
+        print('diff {} revision={} dependencies={} base revision={}', diff_id, revision_id, result, base_revision)
         return revision_id, result, base_revision
+
+    def valid_revision(self, revision) -> bool:
+        """Returns whether a revision a valid"""
+        try:
+            self.repo.rev_parse(revision)
+            return True
+        except:
+            print('Revision {} is not valid'.format(revision))
+            return False
+
 
     def _apply_diff(self, diff_id: int, revision_id: int):
         """Download and apply a diff to the local working copy."""
