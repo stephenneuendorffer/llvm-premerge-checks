@@ -106,6 +106,7 @@ class ApplyPatch:
                 self._apply_diff(self.diff_id, revision_id)
             except Exception as e:
                 print('Failed to apply dependent patches: {}, will to apply the patch alone'.format(e))
+                self.repo.git.checkout(base_revision)
                 self.repo.git.reset('--hard')
                 self.repo.git.clean('-fdx')
                 self._apply_diff(self.diff_id, revision_id)
