@@ -139,7 +139,6 @@ class ApplyPatch:
 
         print('Getting dependencies of {}'.format(diff_id))
         diff = self._get_diff(diff_id)
-        print(diff)
         revision_id = int(diff.revisionID)
         revision = self._get_revision(revision_id)
         base_revision = diff['sourceControlBaseRevision']
@@ -154,7 +153,7 @@ class ApplyPatch:
             result.append(r['id'])
             result.extend(sub)
 
-        print('diff {} revision={} dependencies={} base revision={}'.format(diff_id, revision_id, result, base_revision))
+        print('diff {} revision=D{} dependencies={} base revision={}'.format(diff_id, revision_id, result, base_revision))
         return revision_id, result, base_revision
 
     def valid_revision(self, revision) -> bool:
