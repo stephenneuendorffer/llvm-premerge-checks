@@ -76,7 +76,7 @@ class ApplyPatch:
             revision_id, dependencies, base_revision = self._get_dependencies(self.diff_id)
             dependencies.reverse()  # Arrange deps in chronological order.
             if self.base_revision is not None:
-                print('Using base revision provided by command line\n{} instead of resolved\n{}'.format(
+                print('Using base revision provided by command line {} instead of resolved {}'.format(
                     self.base_revision, base_revision))
                 base_revision = self.base_revision
             print('Checking out {}...'.format(base_revision))
@@ -139,6 +139,7 @@ class ApplyPatch:
 
         print('Getting dependencies of {}'.format(diff_id))
         diff = self._get_diff(diff_id)
+        print(diff)
         revision_id = int(diff.revisionID)
         revision = self._get_revision(revision_id)
         base_revision = diff['sourceControlBaseRevision']
@@ -164,7 +165,6 @@ class ApplyPatch:
         except:
             print('Revision {} is not valid'.format(revision))
             return False
-
 
     def _apply_diff(self, diff_id: int, revision_id: int):
         """Download and apply a diff to the local working copy."""
