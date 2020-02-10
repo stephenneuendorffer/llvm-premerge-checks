@@ -103,11 +103,12 @@ class ApplyPatch:
                         self.repo.config_writer().set_value("user", "email", "build-bot@example.com").release()
                         self.repo.git.commit('-a', '-m', 'dependencies')
                     print('All depended diffs are applied')
+                self._apply_diff(self.diff_id, revision_id)
             except Exception as e:
                 print('Failed to apply dependent patches: {}, will to apply the patch alone'.format(e))
                 self.repo.git.reset('--hard')
                 self.repo.git.clean('-fdx')
-            self._apply_diff(self.diff_id, revision_id)
+                self._apply_diff(self.diff_id, revision_id)
             self.repo.git.add('-u', '.')
             print('done.')
         finally:
