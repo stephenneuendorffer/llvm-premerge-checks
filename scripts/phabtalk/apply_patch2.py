@@ -87,22 +87,26 @@ class ApplyPatch:
                       'repository. Using master instead.'.format(base_revision))
                 self.repo.git.checkout('master')
             print('Revision is {}'.format(self.repo.head.commit.hexsha))
-            print('git reset, git cleanup...')
-            self.repo.git.reset('--hard')
-            self.repo.git.clean('-fdx')
-            print('Analyzing {}'.format(diff_to_str(revision_id)))
-            if len(dependencies) > 0:
-                print('This diff depends on: {}'.format(diff_list_to_str(dependencies)))
-                missing, landed = self._get_missing_landed_dependencies(dependencies)
-                print('  Already landed: {}'.format(diff_list_to_str(landed)))
-                print('  Will be applied: {}'.format(diff_list_to_str(missing)))
-                if missing:
-                    for revision in missing:
-                        self._apply_revision(revision)
-                    self.repo.config_writer().set_value("user", "name", "myusername").release()
-                    self.repo.config_writer().set_value("user", "email", "myemail@example.com").release()
-                    self.repo.git.commit('-a', '-m', 'dependencies')
-                print('All depended diffs are applied')
+            try:
+                self.repo.git.reset('--hard')
+                self.repo.git.clean('-fdx')
+                print('Analyzing {}'.format(diff_to_str(revision_id)))
+                if len(dependencies) > 0:
+                    print('This diff depends on: {}'.format(diff_list_to_str(dependencies)))
+                    missing, landed = self._get_missing_landed_dependencies(dependencies)
+                    print('  Already landed: {}'.format(diff_list_to_str(landed)))
+                    print('  Will be applied: {}'.format(diff_list_to_str(missing)))
+                    if missing:
+                        for revision in missing:
+                            self._apply_revision(revision)
+                        self.repo.config_writer().set_value("user", "name", "build bot").release()
+                        self.repo.config_writer().set_value("user", "email", "build-bot@example.com").release()
+                        self.repo.git.commit('-a', '-m', 'dependencies')
+                    print('All depended diffs are applied')
+            except Exception as e:
+                print('Failed to apply dependent patches: {}, will to apply the patch alone'.format(e))
+                self.repo.git.reset('--hard')
+                self.repo.git.clean('-fdx')
             self._apply_diff(self.diff_id, revision_id)
             self.repo.git.add('-u', '.')
             print('done.')
@@ -149,7 +153,7 @@ class ApplyPatch:
         result = []
         # Recursively resolve dependencies of those diffs.
         for r in revisions:
-            _, sub, _ = self._get_dependencies(r['diffs'][0])
+            _, sub, base_revision = self._get_dependencies(r['diffs'][0])
             result.append(r['id'])
             result.extend(sub)
 
