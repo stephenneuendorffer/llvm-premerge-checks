@@ -153,7 +153,7 @@ class ApplyPatch:
             result.append(r['id'])
             result.extend(sub)
 
-        print('diff {} revision={} dependencies={} base revision={}', diff_id, revision_id, result, base_revision)
+        print('diff {} revision={} dependencies={} base revision={}'.format(diff_id, revision_id, result, base_revision))
         return revision_id, result, base_revision
 
     def valid_revision(self, revision) -> bool:
