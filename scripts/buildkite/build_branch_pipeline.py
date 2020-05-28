@@ -31,5 +31,15 @@ if __name__ == '__main__':
         'artifact_paths': ['artifacts/**/*'],
         'agents': {'queue': queue, 'os': 'linux'}
     }
+    windows_buld_step = {
+        'label': 'build windows',
+        'key': 'build-windows',
+        'commands': [
+            '${SCRIPT_DIR}/premerge_checks.py',
+        ],
+        'artifact_paths': ['artifacts/**/*'],
+        'agents': {'queue': 'dev', 'os': 'windows'}
+    }
     steps.append(linux_buld_step)
+    steps.append(windows_buld_step)
     print(yaml.dump({'steps': steps}))
