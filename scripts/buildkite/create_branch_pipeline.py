@@ -52,5 +52,4 @@ if __name__ == '__main__':
             build_linux_step['build']['env'][e] = os.getenv(e)
     steps.append(create_branch_step)
     steps.append(build_linux_step)
-    steps.append(build_windows_step)
     print(yaml.dump({'steps': steps}))
