@@ -28,7 +28,7 @@ if __name__ == '__main__':
     }
     build_linux_step = {
             'trigger': 'premerge-checks',
-            'label': ':rocket: build linux',
+            'label': ':linux: build and test',
             'async': False,
             'depends_on': 'create-branch',
             'build': {
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     }
     build_windows_step = {
         'trigger': 'premerge-checks-win',
-        'label': ':rocket: build windows',
+        'label': ':windows: build and test',
         'async': False,
         'depends_on': 'create-branch',
         'build': {
