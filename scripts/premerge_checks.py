@@ -14,6 +14,7 @@
 # limitations under the License.
 
 # Runs all check on buildkite agent.
+import argparse
 import json
 import logging
 import os
@@ -115,11 +116,17 @@ def furl(url: str, name: Optional[str] = None):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Runs premerge checks8')
+    parser.add_argument('--log-level', type=str, default='WARNING')
+    parser.add_argument('--check-clang-format', action='store_true')
+    parser.add_argument('--check-clang-tidy', action='store_true')
+    args = parser.parse_args()
+    logging.basicConfig(level=args.log_level, format='%(levelname)-7s %(message)s')
+
     build_dir = ''
-    logging.basicConfig(level=logging.WARNING, format='%(levelname)-7s %(message)s')
     scripts_dir = pathlib.Path(__file__).parent.absolute()
-    phab = PhabTalk(os.getenv('CONDUIT_TOKEN'), 'https://reviews.llvm.org/api/', False)
-    maybe_add_url_artifact(phab, os.getenv('BUILDKITE_BUILD_URL'), 'Buildkite build')
+    phabtalk = PhabTalk(os.getenv('CONDUIT_TOKEN'), 'https://reviews.llvm.org/api/', False)
+    maybe_add_url_artifact(phabtalk, os.getenv('BUILDKITE_BUILD_URL'), 'Buildkite build')
     artifacts_dir = os.path.join(os.getcwd(), 'artifacts')
     os.makedirs(artifacts_dir, exist_ok=True)
     report = Report()
@@ -129,10 +136,12 @@ if __name__ == '__main__':
         compile_result = run_step('ninja all', report, ninja_all_report)
         if compile_result == CheckResult.SUCCESS:
             run_step('ninja check all', report, ninja_check_all_report)
-        run_step('clang-tidy', report,
-                 lambda x: clang_tidy_report.run('HEAD~1', os.path.join(scripts_dir, 'clang-tidy.ignore'), x))
-    run_step('clang-format', report,
-             lambda x: clang_format_report.run('HEAD~1', os.path.join(scripts_dir, 'clang-format.ignore'), x))
+        if args.check_clang_tidy:
+            run_step('clang-tidy', report,
+                     lambda x: clang_tidy_report.run('HEAD~1', os.path.join(scripts_dir, 'clang-tidy.ignore'), x))
+    if args.check_clang_format:
+        run_step('clang-format', report,
+                 lambda x: clang_format_report.run('HEAD~1', os.path.join(scripts_dir, 'clang-format.ignore'), x))
     print('+++ summary')
     print(f'Branch {os.getenv("BUILDKITE_BRANCH")} at {os.getenv("BUILDKITE_REPO")}')
     ph_buildable_diff = os.getenv('ph_buildable_diff')
@@ -163,11 +172,11 @@ if __name__ == '__main__':
     if ph_target_phid is not None:
         build_url = f'https://reviews.llvm.org/harbormaster/build/{os.getenv("ph_build_id")}'
         print(f'Reporting results to Phabricator build {furl(build_url)}')
-        phab.update_build_status(ph_buildable_diff, ph_target_phid, False, success, report.lint, report.unit)
+        phabtalk.update_build_status(ph_buildable_diff, ph_target_phid, False, success, report.lint, report.unit)
         for a in report.artifacts:
             url = upload_file(a['dir'], a['file'])
             if url is not None:
-                maybe_add_url_artifact(phab, url, a['name'])
+                maybe_add_url_artifact(phabtalk, url, a['name'])
     else:
         logging.warning('No phabricator phid is specified. Will not update the build status in Phabricator')
     # TODO: add link to report issue on github

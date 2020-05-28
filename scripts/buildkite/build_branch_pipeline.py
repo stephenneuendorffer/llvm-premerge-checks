@@ -26,8 +26,10 @@ if __name__ == '__main__':
         'label': 'build linux',
         'key': 'build-linux',
         'commands': [
-            # TODO: add scripts checkout as it not guaranteed to be here
-            '${SCRIPT_DIR}/premerge_checks.py',
+            'export SRC=${BUILDKITE_BUILD_PATH}/llvm-premerge-checks',
+            'rm -rf ${SRC}',
+            'git clone --depth 1 --branch ${scripts_branch} https://github.com/google/llvm-premerge-checks.git ${SRC}',
+            '${SRC}/scripts/premerge_checks.py --check-clang-format --check-clang-tidy',
         ],
         'artifact_paths': ['artifacts/**/*'],
         'agents': {'queue': queue, 'os': 'linux'}
@@ -36,7 +38,6 @@ if __name__ == '__main__':
         'label': 'build windows',
         'key': 'build-windows',
         'commands': [
-            'echo "%BUILDKITE_BUILD_PATH%"',
             'set SRC=%BUILDKITE_BUILD_PATH%/llvm-premerge-checks',
             'rm -rf %SRC%',
             'git clone --depth 1 --branch %scripts_branch% https://github.com/google/llvm-premerge-checks.git %SRC%',
