@@ -46,6 +46,6 @@ if __name__ == '__main__':
         'artifact_paths': ['artifacts/**/*'],
         'agents': {'queue': 'dev', 'os': 'windows'}
     }
-    # TODO: enable steps.append(linux_buld_step)
+    steps.append(linux_buld_step)
     steps.append(windows_buld_step)
     print(yaml.dump({'steps': steps}))
