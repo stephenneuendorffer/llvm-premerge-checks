@@ -120,14 +120,26 @@ To spawn a new windows agent:
     ./windows_agent_bootstrap.ps1
     ```
     Ignore the pop-up to format the new disk andw wait for the machine to reboot.
-1. Create `c:\credentials` folder with the agent credentials:    
-    For *Buildkite* add file `buildkite-env.ps1`:
+    
+### Buildkite
+ 
+1. Create `c:\credentials` folder with file `buildkite-env.ps1`:
     ```powershell
     $Env:buildkiteAgentToken = "secret-token"
     $Env:BUILDKITE_AGENT_TAGS = "queue=premerge,os=windows"
-    ```
-   For *Jenkins*: `build-agent-results_key.json` to access cloud storage copy from one of the existing machines.
-1. Start the container `C:\llvm-premerge-checks\scripts\windows_agent_start_[buildkite|jenkins].ps1 `
+    $Env:CONDUIT_TOKEN = "conduit-api-token"
+    ```   
+1. Run
+   ```powershell
+   C:\llvm-premerge-checks\scripts\windows_agent_start_buildkite.ps1 [-workdir D:/] [-testing] [-version latest]
+   ```
+   
+### Jenkins
+   1. Create `c:\credentials` folder with `build-agent-results_key.json` to access cloud storage copy from one of the existing machines.
+   1. Run
+   ```powershell
+   C:\llvm-premerge-checks\scripts\windows_agent_start_buildkite.ps1 [-testing] [-version latest]
+   ```
 
 ## Testing scripts locally
 

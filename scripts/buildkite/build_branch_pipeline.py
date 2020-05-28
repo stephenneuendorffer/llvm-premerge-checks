@@ -26,6 +26,7 @@ if __name__ == '__main__':
         'label': 'build linux',
         'key': 'build-linux',
         'commands': [
+            # TODO: add scripts checkout as it not guaranteed to be here
             '${SCRIPT_DIR}/premerge_checks.py',
         ],
         'artifact_paths': ['artifacts/**/*'],
