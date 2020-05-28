@@ -124,7 +124,7 @@ To spawn a new windows agent:
     For *Buildkite* add file `buildkite-env.ps1`:
     ```powershell
     $Env:buildkiteAgentToken = "secret-token"
-    $Env:BUILDKITE_AGENT_TAGS = "queue=premerge;os=windows"
+    $Env:BUILDKITE_AGENT_TAGS = "queue=premerge,os=windows"
     ```
    For *Jenkins*: `build-agent-results_key.json` to access cloud storage copy from one of the existing machines.
 1. Start the container `C:\llvm-premerge-checks\scripts\windows_agent_start_[buildkite|jenkins].ps1 `

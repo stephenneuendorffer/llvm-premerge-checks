@@ -26,9 +26,9 @@ if __name__ == '__main__':
             'commands': ['scripts/buildkite/apply_patch.sh'],
             'agents': {'queue': queue, 'os': 'linux'}
     }
-    run_build_step = {
+    build_linux_step = {
             'trigger': 'premerge-checks',
-            'label': ':rocket: build',
+            'label': ':rocket: build linux',
             'async': False,
             'depends_on': 'create-branch',
             'build': {
@@ -36,9 +36,20 @@ if __name__ == '__main__':
                     'env': {'scripts_branch': '${BUILDKITE_BRANCH}'},
             },
     }
+    build_windows_step = {
+        'trigger': 'premerge-checks-win',
+        'label': ':rocket: build windows',
+        'async': False,
+        'depends_on': 'create-branch',
+        'build': {
+            'branch': f'phab-diff-{diff_id}',
+            'env': {'scripts_branch': '${BUILDKITE_BRANCH}'},
+        },
+    }
     for e in os.environ:
         if e.startswith('ph_'):
-            run_build_step['build']['env'][e] = os.getenv(e)
+            build_linux_step['build']['env'][e] = os.getenv(e)
     steps.append(create_branch_step)
-    steps.append(run_build_step)
+    steps.append(build_linux_step)
+    steps.append(build_windows_step)
     print(yaml.dump({'steps': steps}))
