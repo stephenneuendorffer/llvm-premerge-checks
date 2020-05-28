@@ -35,11 +35,15 @@ if __name__ == '__main__':
         'label': 'build windows',
         'key': 'build-windows',
         'commands': [
-            '${SCRIPT_DIR}/premerge_checks.py',
+            'echo "%BUILDKITE_BUILD_PATH%"',
+            'set SRC=%BUILDKITE_BUILD_PATH%/llvm-premerge-checks',
+            'rm -rf %SRC%',
+            'git clone --depth 1 --branch %scripts_branch% https://github.com/google/llvm-premerge-checks.git %SRC%',
+            '%SRC%/scripts/premerge_checks.py',
         ],
         'artifact_paths': ['artifacts/**/*'],
         'agents': {'queue': 'dev', 'os': 'windows'}
     }
-    steps.append(linux_buld_step)
+    # TODO: enable steps.append(linux_buld_step)
     steps.append(windows_buld_step)
     print(yaml.dump({'steps': steps}))
